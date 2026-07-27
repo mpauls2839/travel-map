@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+<title>UK Canal Route — Etruria to Great Haywood</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="map"></div>
+
+  <div id="tabs" class="tabs" role="tablist" aria-label="Trip days"></div>
+
+  <button id="sheet-handle" class="sheet-handle" aria-label="Toggle day details" aria-expanded="true">
+    <span></span>
+  </button>
+
+  <aside id="panel" class="panel">
+    <div class="panel-scroll">
+      <div class="panel-header">
+        <div class="panel-eyebrow" id="panel-eyebrow">DAY 1</div>
+        <div class="panel-title-row">
+          <h1 id="panel-title">Loading…</h1>
+          <a id="open-route" class="open-route" href="#" target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 20l8-5 8 5-8-18z" fill="currentColor"/></svg>
+            Open route
+          </a>
+        </div>
+        <p id="panel-summary" class="panel-summary"></p>
+      </div>
+      <div id="stop-list" class="stop-list"></div>
+    </div>
+  </aside>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

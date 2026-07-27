@@ -1,0 +1,321 @@
+:root {
+  --bg: #14181f;
+  --panel-bg: #1c212b;
+  --panel-bg-raised: #242a36;
+  --border: rgba(255,255,255,0.08);
+  --text: #eef0f4;
+  --text-dim: #9aa3b2;
+  --text-faint: #6b7385;
+  --accent: #5b9dff;
+  --accent-dim: rgba(91,157,255,0.15);
+  --radius-lg: 20px;
+  --radius-md: 14px;
+  --radius-sm: 10px;
+  --shadow: 0 8px 28px rgba(0,0,0,0.45);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  overflow: hidden;
+}
+
+#map {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--bg);
+}
+
+/* Leaflet dark tuning */
+.leaflet-container { background: var(--bg); font-family: inherit; }
+.leaflet-popup-content-wrapper {
+  background: var(--panel-bg-raised);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+}
+.leaflet-popup-tip { background: var(--panel-bg-raised); }
+.leaflet-popup-content { font-size: 13px; margin: 10px 12px; }
+.leaflet-control-zoom a {
+  background: var(--panel-bg-raised) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+/* Day tabs */
+.tabs {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 10;
+  display: flex;
+  gap: 8px;
+  background: rgba(20,24,31,0.001); /* keep hit area, no visible bg on wrapper */
+}
+
+.tab {
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--panel-bg-raised);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: background .15s, color .15s;
+  white-space: nowrap;
+}
+
+.tab:hover { color: var(--text); }
+
+.tab.active {
+  background: var(--text);
+  color: #14181f;
+  border-color: var(--text);
+}
+
+/* Numbered map markers */
+.stop-marker {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--panel-bg-raised);
+  border: 2.5px solid var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  box-shadow: var(--shadow);
+  background-size: cover;
+  background-position: center;
+}
+.stop-marker.has-photo { color: transparent; text-shadow: none; }
+.stop-marker .marker-badge {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  background: var(--accent);
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 10.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--bg);
+}
+.marker-wrap { position: relative; }
+
+/* Side / bottom panel */
+.panel {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  bottom: 16px;
+  width: 380px;
+  max-width: calc(100vw - 32px);
+  background: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-scroll {
+  overflow-y: auto;
+  padding-bottom: 16px;
+}
+
+.panel-header {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+.panel-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.panel-title-row h1 {
+  font-size: 19px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.panel-summary {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin: 10px 0 0;
+}
+
+.open-route {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--text);
+  color: #14181f;
+  font-size: 12.5px;
+  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: 999px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.stop-list {
+  padding: 6px 14px 4px;
+}
+
+.period-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 16px 6px 8px;
+}
+
+.stop-card {
+  display: flex;
+  gap: 12px;
+  background: var(--panel-bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color .15s, transform .1s;
+}
+
+.stop-card:hover { border-color: rgba(255,255,255,0.18); }
+.stop-card.active { border-color: var(--accent); background: var(--accent-dim); }
+
+.stop-photo {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-sm);
+  background-size: cover;
+  background-position: center;
+  background-color: #2b3140;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-faint);
+}
+
+.stop-body { min-width: 0; flex: 1; }
+
+.stop-time {
+  font-size: 11.5px;
+  color: var(--text-faint);
+  font-weight: 600;
+}
+
+.stop-name {
+  font-size: 14.5px;
+  font-weight: 700;
+  margin: 1px 0 2px;
+  color: var(--text);
+}
+
+.stop-subtitle {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 3px;
+}
+
+.stop-note {
+  font-size: 12.5px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+
+.stop-rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--text-dim);
+  margin-top: 5px;
+}
+
+.stop-rating .star { color: #f5b942; }
+
+/* Mobile bottom-sheet handle (hidden on desktop) */
+.sheet-handle { display: none; }
+
+@media (max-width: 720px) {
+  .tabs {
+    top: 14px;
+    left: 14px;
+    right: 14px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+
+  .panel {
+    top: auto;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 46vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    transition: height .25s ease;
+  }
+
+  .panel.collapsed { height: 84px; }
+  .panel.collapsed .panel-summary,
+  .panel.collapsed .stop-list { display: none; }
+
+  .sheet-handle {
+    display: flex;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: calc(46vh - 2px);
+    z-index: 11;
+    width: 56px;
+    height: 22px;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    transition: bottom .25s ease;
+  }
+  .sheet-handle span {
+    width: 36px;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--text-faint);
+  }
+}

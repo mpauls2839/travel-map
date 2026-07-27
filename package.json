@@ -1,0 +1,14 @@
+{
+  "name": "uk-canal-route-map",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive day-by-day map for the UK canal boat leg of the trip.",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "serve": "npx --yes serve ."
+  },
+  "devDependencies": {
+    "typescript": "^5.5.0"
+  }
+}

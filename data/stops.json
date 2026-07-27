@@ -1,0 +1,198 @@
+{
+  "trip": {
+    "title": "Etruria \u2192 Stone \u2192 Great Haywood",
+    "subtitle": "4 nights \u00b7 Duchess 2 Royal \u00b7 booking 74782",
+    "operator": "Black Prince Holidays"
+  },
+  "days": [
+    {
+      "id": 1,
+      "label": "Day 1",
+      "date": "Mon 10 Aug",
+      "title": "Etruria to Trentham",
+      "summary": "Pick up the boat and cruise a short first leg \u2014 no rush on day one.",
+      "stops": [
+        {
+          "time": "2:30 PM",
+          "period": "Afternoon",
+          "name": "Festival Park Marina, Etruria",
+          "subtitle": "Premise",
+          "note": "Pick up Duchess 2 Royal (booking 74782). Induction ~2:30\u20133:30pm, on the water by ~4pm.",
+          "lat": 53.0241842,
+          "lng": -2.1965653,
+          "photo": null,
+          "rating": null,
+          "ratingCount": null
+        },
+        {
+          "time": "6:00 PM",
+          "period": "Evening",
+          "name": "Trentham Estate",
+          "subtitle": "Gardens & lake",
+          "note": "Canalside gardens and lake \u2014 good first-evening mooring, no rush getting here.",
+          "lat": 52.9636832,
+          "lng": -2.1968906,
+          "photo": "https://lh3.googleusercontent.com/place-photos/AG9NLjBdcmDnnMj95YehzZQ5pKn8HW9Tvb9k6kmclK-hFSRnGg_eCW0BBjxmaOR4HUI3Jozala4Q88MOpoR0idgnO_8qX3ZU8AS8aJ3QUDF17q6o1cLe4fMaoIo_DY4NhbYUgXEuRDc51U6MmVZMjp8=s4800-w800-h600",
+          "rating": 4.6,
+          "ratingCount": 12374
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "label": "Day 2",
+      "date": "Tue 11 Aug",
+      "title": "Barlaston to Stone",
+      "summary": "Work through the lock flight, pass the Wedgwood factory, overnight in Stone.",
+      "stops": [
+        {
+          "time": "9:00 AM",
+          "period": "Morning",
+          "name": "Depart Trentham",
+          "subtitle": "Start of day",
+          "note": "Leave the overnight mooring, heading south.",
+          "lat": 52.9636832,
+          "lng": -2.1968906,
+          "photo": null,
+          "rating": null,
+          "ratingCount": null
+        },
+        {
+          "time": "11:00 AM",
+          "period": "Morning",
+          "name": "World of Wedgwood, Barlaston",
+          "subtitle": "Factory, museum & tea room",
+          "note": "Canalside \u2014 worth a mooring stop as you pass through the lock flight.",
+          "lat": 52.9548577,
+          "lng": -2.1697807,
+          "photo": "https://lh3.googleusercontent.com/place-photos/AG9NLjBuvkKtbhDQK5ZuHVEuvzCISMOtwVo8vncgdB3hkrZ0LMTcYYbh1Tdh1hYM467dTMEg-xNkwj51u8ofvCFmtRjIDk4BlCSQoILNu9qlHE50g4PFg5OCw--N1UwIAJivnn8zlSRxkh3loUKn=s4800-w800-h600",
+          "rating": 4.5,
+          "ratingCount": null
+        },
+        {
+          "time": "6:00 PM",
+          "period": "Evening",
+          "name": "Stone town moorings",
+          "subtitle": "Pubs & shops on the water",
+          "note": "Overnight in Stone. Likely busier than usual \u2014 other Caldon-displaced boats redirected this way too.",
+          "lat": 52.9018619,
+          "lng": -2.1490612,
+          "photo": "https://lh3.googleusercontent.com/place-photos/AG9NLjDZj53hc-WzdsEsjnB5yUv9_ro825Miy4LL-2HOe2LB506--kyipR-gqKDxmCnLQmKMMzbiiXvbUgd1nOTSOXc2xg8otcp6CsyTLlncz2uHK4cuhVJOnobByHIW5omZ6Feu-aMEDK3s8Y1p6nz3PN-q7A=s4800-w800-h600",
+          "rating": 4.6,
+          "ratingCount": null
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "label": "Day 3",
+      "date": "Wed 12 Aug",
+      "title": "Tixall Wide & Great Haywood",
+      "summary": "No-lock cruising to a broad, scenic pool, then moor near Shugborough.",
+      "stops": [
+        {
+          "time": "9:00 AM",
+          "period": "Morning",
+          "name": "Depart Stone",
+          "subtitle": "Start of day",
+          "note": "Leave the overnight mooring, continuing south.",
+          "lat": 52.9018619,
+          "lng": -2.1490612,
+          "photo": null,
+          "rating": null,
+          "ratingCount": null
+        },
+        {
+          "time": "3:00 PM",
+          "period": "Afternoon",
+          "name": "Tixall Wide",
+          "subtitle": "Broad, lake-like stretch",
+          "note": "No locks. One of the most photographed mooring spots on the network \u2014 arrive early for a good spot.",
+          "lat": 52.802,
+          "lng": -2.025,
+          "photo": "https://lh3.googleusercontent.com/place-photos/AG9NLjCKD2aRgil6PniMDzkTIchj060qgk803EOKnB77C_dBsYjl3hNXGWcx7lw5f3mp0neSRzSkWDeiHlxBCxaSLrg6DS_VruPJojEDcJFqT9lGyaEYoQSkEprvC753cbmg8uiXBr4-YCXqd8oj=s4800-w800-h600",
+          "rating": 4.8,
+          "ratingCount": null
+        },
+        {
+          "time": "5:00 PM",
+          "period": "Evening",
+          "name": "Shugborough Hall / Great Haywood",
+          "subtitle": "Estate & village",
+          "note": "Also the suggested jump-off point for an Alton Towers taxi (~40 min) if wanted.",
+          "lat": 52.800013,
+          "lng": -2.0128353,
+          "photo": "https://lh3.googleusercontent.com/place-photos/AG9NLjDYWOqRtCCYQUhr6ImIOgyvr5i6pOuz7-nzhJen2XZEw-4EAqbnID5zCX-wK6xc6LHTL8_1s-hc5j7fgwkJ9YUN3b1wGU2f2aVaseTR5ih8aU66dOTOjurVeWgNFPxciuTxBQ5GQX8BijEURtk=s4800-w800-h600",
+          "rating": 4.6,
+          "ratingCount": null
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "label": "Day 4",
+      "date": "Thu 13 Aug",
+      "title": "Return leg toward Stone",
+      "summary": "Retrace north, back toward the marina end of the route.",
+      "stops": [
+        {
+          "time": "9:00 AM",
+          "period": "Morning",
+          "name": "Depart Great Haywood",
+          "subtitle": "Start of day",
+          "note": "Leave the overnight mooring, heading north.",
+          "lat": 52.800013,
+          "lng": -2.0128353,
+          "photo": null,
+          "rating": null,
+          "ratingCount": null
+        },
+        {
+          "time": "5:00 PM",
+          "period": "Evening",
+          "name": "Stone town moorings",
+          "subtitle": "Overnight (return)",
+          "note": "Overnight around Stone or Barlaston depending on pace.",
+          "lat": 52.9018619,
+          "lng": -2.1490612,
+          "photo": "https://lh3.googleusercontent.com/place-photos/AG9NLjDZj53hc-WzdsEsjnB5yUv9_ro825Miy4LL-2HOe2LB506--kyipR-gqKDxmCnLQmKMMzbiiXvbUgd1nOTSOXc2xg8otcp6CsyTLlncz2uHK4cuhVJOnobByHIW5omZ6Feu-aMEDK3s8Y1p6nz3PN-q7A=s4800-w800-h600",
+          "rating": 4.6,
+          "ratingCount": null
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "label": "Day 5",
+      "date": "Fri 14 Aug",
+      "title": "Back to base",
+      "summary": "Short final cruise back into Etruria to return the boat.",
+      "stops": [
+        {
+          "time": "8:00 AM",
+          "period": "Morning",
+          "name": "Depart Stone",
+          "subtitle": "Start of day",
+          "note": "Final short cruise back to base.",
+          "lat": 52.9018619,
+          "lng": -2.1490612,
+          "photo": null,
+          "rating": null,
+          "ratingCount": null
+        },
+        {
+          "time": "9:00 AM",
+          "period": "Morning",
+          "name": "Festival Park Marina, Etruria",
+          "subtitle": "End of trip",
+          "note": "Return the boat by the required morning time.",
+          "lat": 53.0241842,
+          "lng": -2.1965653,
+          "photo": null,
+          "rating": null,
+          "ratingCount": null
+        }
+      ]
+    }
+  ]
+}
