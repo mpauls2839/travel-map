@@ -1,9 +1,38 @@
 "use strict";
 // UK Canal Route — interactive day-by-day map
 // Edit data/stops.json to change the trip content; this file is display logic only.
+// Canal geometry lives in data/route.json (regenerate with: npm run build:route).
+function haversineMeters(a, b) {
+    const R = 6371000;
+    const dLat = ((b[0] - a[0]) * Math.PI) / 180;
+    const dLon = ((b[1] - a[1]) * Math.PI) / 180;
+    const lat1 = (a[0] * Math.PI) / 180;
+    const lat2 = (b[0] * Math.PI) / 180;
+    const x = Math.sin(dLat / 2) ** 2 +
+        Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(x));
+}
+function snapToRoute(route, pt) {
+    if (!route.length)
+        return pt;
+    let best = route[0];
+    let bestDist = Infinity;
+    for (const p of route) {
+        const d = haversineMeters(p, pt);
+        if (d < bestDist) {
+            bestDist = d;
+            best = p;
+        }
+    }
+    return best;
+}
 async function main() {
-    const res = await fetch("data/stops.json");
-    const data = await res.json();
+    const [stopsRes, routeRes] = await Promise.all([
+        fetch("data/stops.json"),
+        fetch("data/route.json"),
+    ]);
+    const data = await stopsRes.json();
+    const route = await routeRes.json();
     const map = L.map("map", { zoomControl: true, attributionControl: true });
     L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
@@ -13,30 +42,17 @@ async function main() {
     let currentMarkers = [];
     let activeDayId = data.days[0]?.id ?? 1;
     let activeStopIndex = null;
+    let youAreHereMarker = null;
+    let lastSnappedPos = null;
     const tabsEl = document.getElementById("tabs");
     const panelEl = document.getElementById("panel");
     const eyebrowEl = document.getElementById("panel-eyebrow");
     const titleEl = document.getElementById("panel-title");
     const summaryEl = document.getElementById("panel-summary");
     const stopListEl = document.getElementById("stop-list");
-    const openRouteEl = document.getElementById("open-route");
     const sheetHandle = document.getElementById("sheet-handle");
-    function buildGoogleMapsUrl(day) {
-        const pts = day.stops.map((s) => `${s.lat},${s.lng}`);
-        const origin = pts[0];
-        const destination = pts[pts.length - 1];
-        const waypoints = pts.slice(1, -1).join("|");
-        const params = new URLSearchParams({
-            api: "1",
-            origin,
-            destination,
-            travelmode: "driving",
-        });
-        let url = `https://www.google.com/maps/dir/?${params.toString()}`;
-        if (waypoints)
-            url += `&waypoints=${encodeURIComponent(waypoints)}`;
-        return url;
-    }
+    const locateBtn = document.getElementById("locate-btn");
+    const locNotice = document.getElementById("loc-notice");
     function renderTabs() {
         tabsEl.innerHTML = "";
         data.days.forEach((day) => {
@@ -53,41 +69,47 @@ async function main() {
         const bg = stop.photo
             ? `style="background-image:url('${stop.photo}')"`
             : "";
-        const label = stop.photo ? "" : String(index + 1);
-        return `<div class="stop-marker${stop.photo ? " has-photo" : ""}" ${bg}>${label}</div>`;
+        const photoClass = stop.photo ? " has-photo" : "";
+        return `<div class="stop-marker${photoClass}" ${bg}>
+      <span class="marker-badge">${index + 1}</span>
+    </div>`;
     }
     function renderMap(day) {
         currentMarkers.forEach((m) => map.removeLayer(m));
         currentMarkers = [];
         if (currentLine)
             map.removeLayer(currentLine);
-        const latlngs = day.stops.map((s) => [s.lat, s.lng]);
+        const dayCoords = route.days[String(day.id)];
+        const latlngs = dayCoords && dayCoords.length >= 2
+            ? dayCoords
+            : day.stops.map((s) => [s.lat, s.lng]);
         currentLine = L.polyline(latlngs, {
-            color: "#5b9dff",
-            weight: 4,
-            opacity: 0.85,
-            dashArray: "1 9",
+            color: "#4a90ff",
+            weight: 5,
+            opacity: 0.95,
             lineCap: "round",
+            lineJoin: "round",
         }).addTo(map);
         day.stops.forEach((stop, i) => {
             const icon = L.divIcon({
                 html: markerHtml(stop, i),
                 className: "marker-wrap",
-                iconSize: [30, 30],
-                iconAnchor: [15, 15],
+                iconSize: [36, 36],
+                iconAnchor: [18, 18],
             });
             const marker = L.marker([stop.lat, stop.lng], { icon }).addTo(map);
             marker.bindPopup(`<b>${i + 1}. ${stop.name}</b><br>${stop.time}`);
             marker.on("click", () => focusStop(i, true));
             currentMarkers.push(marker);
         });
-        map.fitBounds(latlngs, { padding: [60, 60] });
+        if (latlngs.length) {
+            map.fitBounds(latlngs, { padding: [60, 60] });
+        }
     }
     function renderPanel(day) {
         eyebrowEl.textContent = `${day.label.toUpperCase()} \u00b7 ${day.date}`;
         titleEl.textContent = day.title;
         summaryEl.textContent = day.summary;
-        openRouteEl.href = buildGoogleMapsUrl(day);
         stopListEl.innerHTML = "";
         let lastPeriod = "";
         day.stops.forEach((stop, i) => {
@@ -161,14 +183,70 @@ async function main() {
         sheetHandle.style.bottom = sheetCollapsed ? "62px" : "calc(46vh - 2px)";
         sheetHandle.setAttribute("aria-expanded", String(!sheetCollapsed));
     };
+    function showLocNotice(message) {
+        locNotice.textContent = message;
+        locNotice.hidden = false;
+        window.setTimeout(() => {
+            locNotice.hidden = true;
+        }, 4500);
+    }
+    function updateYouAreHere(lat, lng) {
+        const snapped = snapToRoute(route.full, [lat, lng]);
+        lastSnappedPos = snapped;
+        if (!youAreHereMarker) {
+            const icon = L.divIcon({
+                html: `<div class="you-are-here"><span class="yah-pulse"></span><span class="yah-dot"></span></div>`,
+                className: "yah-wrap",
+                iconSize: [24, 24],
+                iconAnchor: [12, 12],
+            });
+            youAreHereMarker = L.marker(snapped, {
+                icon,
+                zIndexOffset: 1000,
+                interactive: false,
+            }).addTo(map);
+        }
+        else {
+            youAreHereMarker.setLatLng(snapped);
+        }
+        locateBtn.hidden = false;
+    }
+    locateBtn.onclick = () => {
+        if (lastSnappedPos) {
+            map.flyTo(lastSnappedPos, Math.max(map.getZoom(), 15), {
+                duration: 0.5,
+            });
+        }
+    };
+    function startGeolocation() {
+        if (!navigator.geolocation) {
+            showLocNotice("Location is not available on this device.");
+            return;
+        }
+        navigator.geolocation.watchPosition((pos) => {
+            updateYouAreHere(pos.coords.latitude, pos.coords.longitude);
+        }, (err) => {
+            if (err.code === err.PERMISSION_DENIED) {
+                showLocNotice("Location permission denied. Map still works.");
+            }
+            else {
+                showLocNotice("Couldn't get your location right now.");
+            }
+        }, {
+            enableHighAccuracy: true,
+            maximumAge: 5000,
+            timeout: 15000,
+        });
+    }
     selectDay(activeDayId);
+    startGeolocation();
 }
 main().catch((err) => {
     console.error("Failed to load trip map:", err);
     const panelEl = document.getElementById("panel");
     if (panelEl) {
         panelEl.innerHTML = `<div style="padding:20px;color:#eef0f4;">
-      Couldn't load trip data (data/stops.json). Check the browser console for details.
+      Couldn't load trip data. Check the browser console for details.
     </div>`;
     }
 });

@@ -20,18 +20,22 @@
     <div class="panel-scroll">
       <div class="panel-header">
         <div class="panel-eyebrow" id="panel-eyebrow">DAY 1</div>
-        <div class="panel-title-row">
-          <h1 id="panel-title">Loading…</h1>
-          <a id="open-route" class="open-route" href="#" target="_blank" rel="noopener">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L4 20l8-5 8 5-8-18z" fill="currentColor"/></svg>
-            Open route
-          </a>
-        </div>
+        <h1 id="panel-title">Loading…</h1>
         <p id="panel-summary" class="panel-summary"></p>
       </div>
       <div id="stop-list" class="stop-list"></div>
     </div>
   </aside>
+
+  <button id="locate-btn" class="locate-btn" type="button" aria-label="Recenter on my location" hidden>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="3" fill="currentColor"/>
+      <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="12" cy="12" r="7" stroke="currentColor" stroke-width="2"/>
+    </svg>
+  </button>
+
+  <div id="loc-notice" class="loc-notice" hidden role="status"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script src="app.js"></script>
