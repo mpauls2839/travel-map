@@ -1,5 +1,6 @@
 // UK Canal Route — interactive day-by-day map
 // Edit data/stops.json to change the trip content; this file is display logic only.
+// Canal geometry lives in data/route.json (regenerate with: npm run build:route).
 
 interface Stop {
   time: string;
@@ -28,11 +29,49 @@ interface TripData {
   days: Day[];
 }
 
+interface RouteData {
+  full: [number, number][];
+  days: Record<string, [number, number][]>;
+}
+
 declare const L: any; // Leaflet, loaded via CDN script tag
 
+function haversineMeters(a: [number, number], b: [number, number]): number {
+  const R = 6371000;
+  const dLat = ((b[0] - a[0]) * Math.PI) / 180;
+  const dLon = ((b[1] - a[1]) * Math.PI) / 180;
+  const lat1 = (a[0] * Math.PI) / 180;
+  const lat2 = (b[0] * Math.PI) / 180;
+  const x =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(x));
+}
+
+function snapToRoute(
+  route: [number, number][],
+  pt: [number, number]
+): [number, number] {
+  if (!route.length) return pt;
+  let best = route[0];
+  let bestDist = Infinity;
+  for (const p of route) {
+    const d = haversineMeters(p, pt);
+    if (d < bestDist) {
+      bestDist = d;
+      best = p;
+    }
+  }
+  return best;
+}
+
 async function main(): Promise<void> {
-  const res = await fetch("data/stops.json");
-  const data: TripData = await res.json();
+  const [stopsRes, routeRes] = await Promise.all([
+    fetch("data/stops.json"),
+    fetch("data/route.json"),
+  ]);
+  const data: TripData = await stopsRes.json();
+  const route: RouteData = await routeRes.json();
 
   const map = L.map("map", { zoomControl: true, attributionControl: true });
   L.tileLayer(
@@ -48,6 +87,8 @@ async function main(): Promise<void> {
   let currentMarkers: any[] = [];
   let activeDayId = data.days[0]?.id ?? 1;
   let activeStopIndex: number | null = null;
+  let youAreHereMarker: any = null;
+  let lastSnappedPos: [number, number] | null = null;
 
   const tabsEl = document.getElementById("tabs") as HTMLElement;
   const panelEl = document.getElementById("panel") as HTMLElement;
@@ -55,25 +96,12 @@ async function main(): Promise<void> {
   const titleEl = document.getElementById("panel-title") as HTMLElement;
   const summaryEl = document.getElementById("panel-summary") as HTMLElement;
   const stopListEl = document.getElementById("stop-list") as HTMLElement;
-  const openRouteEl = document.getElementById(
-    "open-route"
-  ) as HTMLAnchorElement;
   const sheetHandle = document.getElementById("sheet-handle") as HTMLElement;
+  const locateBtn = document.getElementById("locate-btn") as HTMLButtonElement;
+  const locNotice = document.getElementById("loc-notice") as HTMLElement;
 
-  function buildGoogleMapsUrl(day: Day): string {
-    const pts = day.stops.map((s) => `${s.lat},${s.lng}`);
-    const origin = pts[0];
-    const destination = pts[pts.length - 1];
-    const waypoints = pts.slice(1, -1).join("|");
-    const params = new URLSearchParams({
-      api: "1",
-      origin,
-      destination,
-      travelmode: "driving",
-    });
-    let url = `https://www.google.com/maps/dir/?${params.toString()}`;
-    if (waypoints) url += `&waypoints=${encodeURIComponent(waypoints)}`;
-    return url;
+  function buildStopMapsUrl(stop: Stop): string {
+    return `https://www.google.com/maps/search/?api=1&query=${stop.lat}%2C${stop.lng}`;
   }
 
   function renderTabs(): void {
@@ -93,10 +121,10 @@ async function main(): Promise<void> {
     const bg = stop.photo
       ? `style="background-image:url('${stop.photo}')"`
       : "";
-    const label = stop.photo ? "" : String(index + 1);
-    return `<div class="stop-marker${
-      stop.photo ? " has-photo" : ""
-    }" ${bg}>${label}</div>`;
+    const photoClass = stop.photo ? " has-photo" : "";
+    return `<div class="stop-marker${photoClass}" ${bg}>
+      <span class="marker-badge">${index + 1}</span>
+    </div>`;
   }
 
   function renderMap(day: Day): void {
@@ -104,24 +132,26 @@ async function main(): Promise<void> {
     currentMarkers = [];
     if (currentLine) map.removeLayer(currentLine);
 
-    const latlngs = day.stops.map((s) => [s.lat, s.lng]) as [
-      number,
-      number
-    ][];
+    const dayCoords = route.days[String(day.id)];
+    const latlngs: [number, number][] =
+      dayCoords && dayCoords.length >= 2
+        ? dayCoords
+        : day.stops.map((s) => [s.lat, s.lng]);
+
     currentLine = L.polyline(latlngs, {
-      color: "#5b9dff",
-      weight: 4,
-      opacity: 0.85,
-      dashArray: "1 9",
+      color: "#4a90ff",
+      weight: 5,
+      opacity: 0.95,
       lineCap: "round",
+      lineJoin: "round",
     }).addTo(map);
 
     day.stops.forEach((stop, i) => {
       const icon = L.divIcon({
         html: markerHtml(stop, i),
         className: "marker-wrap",
-        iconSize: [30, 30],
-        iconAnchor: [15, 15],
+        iconSize: [36, 36],
+        iconAnchor: [18, 18],
       });
       const marker = L.marker([stop.lat, stop.lng], { icon }).addTo(map);
       marker.bindPopup(`<b>${i + 1}. ${stop.name}</b><br>${stop.time}`);
@@ -129,14 +159,15 @@ async function main(): Promise<void> {
       currentMarkers.push(marker);
     });
 
-    map.fitBounds(latlngs, { padding: [60, 60] });
+    if (latlngs.length) {
+      map.fitBounds(latlngs, { padding: [60, 60] });
+    }
   }
 
   function renderPanel(day: Day): void {
     eyebrowEl.textContent = `${day.label.toUpperCase()} \u00b7 ${day.date}`;
     titleEl.textContent = day.title;
     summaryEl.textContent = day.summary;
-    openRouteEl.href = buildGoogleMapsUrl(day);
 
     stopListEl.innerHTML = "";
     let lastPeriod = "";
@@ -177,7 +208,9 @@ async function main(): Promise<void> {
 
       body.innerHTML = `
         <div class="stop-time">${stop.time}</div>
-        <div class="stop-name">${stop.name}</div>
+        <div class="stop-name">
+          <a class="stop-name-link" href="${buildStopMapsUrl(stop)}" target="_blank" rel="noopener">${stop.name}</a>
+        </div>
         <div class="stop-subtitle">${stop.subtitle}</div>
         <div class="stop-note">${stop.note}</div>
         ${ratingHtml}
@@ -186,6 +219,9 @@ async function main(): Promise<void> {
       card.appendChild(photoDiv);
       card.appendChild(body);
       card.onclick = () => focusStop(i, false);
+      card
+        .querySelector(".stop-name-link")
+        ?.addEventListener("click", (e) => e.stopPropagation());
       stopListEl.appendChild(card);
     });
   }
@@ -233,7 +269,69 @@ async function main(): Promise<void> {
     sheetHandle.setAttribute("aria-expanded", String(!sheetCollapsed));
   };
 
+  function showLocNotice(message: string): void {
+    locNotice.textContent = message;
+    locNotice.hidden = false;
+    window.setTimeout(() => {
+      locNotice.hidden = true;
+    }, 4500);
+  }
+
+  function updateYouAreHere(lat: number, lng: number): void {
+    const snapped = snapToRoute(route.full, [lat, lng]);
+    lastSnappedPos = snapped;
+    if (!youAreHereMarker) {
+      const icon = L.divIcon({
+        html: `<div class="you-are-here"><span class="yah-pulse"></span><span class="yah-dot"></span></div>`,
+        className: "yah-wrap",
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+      });
+      youAreHereMarker = L.marker(snapped, {
+        icon,
+        zIndexOffset: 1000,
+        interactive: false,
+      }).addTo(map);
+    } else {
+      youAreHereMarker.setLatLng(snapped);
+    }
+    locateBtn.hidden = false;
+  }
+
+  locateBtn.onclick = () => {
+    if (lastSnappedPos) {
+      map.flyTo(lastSnappedPos, Math.max(map.getZoom(), 15), {
+        duration: 0.5,
+      });
+    }
+  };
+
+  function startGeolocation(): void {
+    if (!navigator.geolocation) {
+      showLocNotice("Location is not available on this device.");
+      return;
+    }
+    navigator.geolocation.watchPosition(
+      (pos) => {
+        updateYouAreHere(pos.coords.latitude, pos.coords.longitude);
+      },
+      (err) => {
+        if (err.code === err.PERMISSION_DENIED) {
+          showLocNotice("Location permission denied. Map still works.");
+        } else {
+          showLocNotice("Couldn't get your location right now.");
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 5000,
+        timeout: 15000,
+      }
+    );
+  }
+
   selectDay(activeDayId);
+  startGeolocation();
 }
 
 main().catch((err) => {
@@ -241,7 +339,7 @@ main().catch((err) => {
   const panelEl = document.getElementById("panel");
   if (panelEl) {
     panelEl.innerHTML = `<div style="padding:20px;color:#eef0f4;">
-      Couldn't load trip data (data/stops.json). Check the browser console for details.
+      Couldn't load trip data. Check the browser console for details.
     </div>`;
   }
 });

@@ -9,17 +9,23 @@ account to manage.
 ## Structure
 
 ```
-index.html        the page shell
-style.css          all styling (dark map + floating panel)
-src/app.ts         TypeScript source — edit this
-app.js             compiled output — what index.html actually loads
-data/stops.json    all trip content (days, stops, times, photos, notes)
-tsconfig.json      compiler config
-package.json       build script
+index.html             the page shell
+style.css              all styling (dark map + floating panel)
+src/app.ts             TypeScript source — edit this
+app.js                 compiled output — what index.html actually loads
+data/stops.json        all trip content (days, stops, times, photos, notes)
+data/route.json        canal polylines per day (generated; commit this)
+scripts/build-route.mjs  fetches OSM canal geometry → data/route.json
+tsconfig.json          compiler config
+package.json           build scripts
 ```
 
 **To change the content** (dates, stops, notes, photos), edit
-`data/stops.json` — no rebuild needed, it's loaded at runtime via `fetch()`.
+`data/stops.json` — no rebuild needed for text/photos. If you move stop
+coordinates, also regenerate the canal lines:
+```
+npm run build:route
+```
 
 **To change the behavior/UI**, edit `src/app.ts`, then run:
 ```
@@ -67,6 +73,10 @@ already committed, so Pages just serves the files as-is.
   this static. If you'd rather use Google Maps JS API for a closer visual
   match, that's a straightforward swap in `src/app.ts` but does require
   your own API key.
+- Canal route lines are real OpenStreetMap waterway geometry (Trent &
+  Mersey + Staffs & Worcs), baked into `data/route.json` at build time.
+- The site asks for your location on load and snaps a "you are here" dot
+  onto the canal corridor. HTTPS is required (GitHub Pages provides that).
 - Photo URLs in `stops.json` are Google Places photo links, which can
   expire after a while. If a photo goes blank, swap in a fresh URL or a
   self-hosted image.

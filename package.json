@@ -5,6 +5,7 @@
   "description": "Interactive day-by-day map for the UK canal boat leg of the trip.",
   "scripts": {
     "build": "tsc",
+    "build:route": "node scripts/build-route.mjs",
     "watch": "tsc --watch",
     "serve": "npx --yes serve ."
   },
