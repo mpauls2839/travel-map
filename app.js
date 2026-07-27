@@ -53,6 +53,9 @@ async function main() {
     const sheetHandle = document.getElementById("sheet-handle");
     const locateBtn = document.getElementById("locate-btn");
     const locNotice = document.getElementById("loc-notice");
+    function buildStopMapsUrl(stop) {
+        return `https://www.google.com/maps/search/?api=1&query=${stop.lat}%2C${stop.lng}`;
+    }
     function renderTabs() {
         tabsEl.innerHTML = "";
         data.days.forEach((day) => {
@@ -140,7 +143,9 @@ async function main() {
                 : "";
             body.innerHTML = `
         <div class="stop-time">${stop.time}</div>
-        <div class="stop-name">${stop.name}</div>
+        <div class="stop-name">
+          <a class="stop-name-link" href="${buildStopMapsUrl(stop)}" target="_blank" rel="noopener">${stop.name}</a>
+        </div>
         <div class="stop-subtitle">${stop.subtitle}</div>
         <div class="stop-note">${stop.note}</div>
         ${ratingHtml}
@@ -148,6 +153,9 @@ async function main() {
             card.appendChild(photoDiv);
             card.appendChild(body);
             card.onclick = () => focusStop(i, false);
+            card
+                .querySelector(".stop-name-link")
+                ?.addEventListener("click", (e) => e.stopPropagation());
             stopListEl.appendChild(card);
         });
     }

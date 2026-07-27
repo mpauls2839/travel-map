@@ -100,6 +100,10 @@ async function main(): Promise<void> {
   const locateBtn = document.getElementById("locate-btn") as HTMLButtonElement;
   const locNotice = document.getElementById("loc-notice") as HTMLElement;
 
+  function buildStopMapsUrl(stop: Stop): string {
+    return `https://www.google.com/maps/search/?api=1&query=${stop.lat}%2C${stop.lng}`;
+  }
+
   function renderTabs(): void {
     tabsEl.innerHTML = "";
     data.days.forEach((day) => {
@@ -204,7 +208,9 @@ async function main(): Promise<void> {
 
       body.innerHTML = `
         <div class="stop-time">${stop.time}</div>
-        <div class="stop-name">${stop.name}</div>
+        <div class="stop-name">
+          <a class="stop-name-link" href="${buildStopMapsUrl(stop)}" target="_blank" rel="noopener">${stop.name}</a>
+        </div>
         <div class="stop-subtitle">${stop.subtitle}</div>
         <div class="stop-note">${stop.note}</div>
         ${ratingHtml}
@@ -213,6 +219,9 @@ async function main(): Promise<void> {
       card.appendChild(photoDiv);
       card.appendChild(body);
       card.onclick = () => focusStop(i, false);
+      card
+        .querySelector(".stop-name-link")
+        ?.addEventListener("click", (e) => e.stopPropagation());
       stopListEl.appendChild(card);
     });
   }
